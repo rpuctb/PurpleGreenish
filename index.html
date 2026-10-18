@@ -14,6 +14,11 @@
 
 .fade-out { animation: fadeOut 0.6s forwards; }
 
+@keyframes softPulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(150,137,194,.18), 0 0 0 0 rgba(150,137,194,0); }
+    50%      { box-shadow: 0 0 0 3px rgba(150,137,194,.28), 0 0 0 7px rgba(150,137,194,0); }
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { width: 100%; height: 100%; background: #0a0d0b; color: #ddd; font-family: 'Courier New', monospace; font-size: 16px; overflow: hidden; user-select: none; }
 #app { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
@@ -28,7 +33,7 @@ html, body { width: 100%; height: 100%; background: #0a0d0b; color: #ddd; font-f
     margin-left: -150px;
     background: #fdfaf3;
     border-radius: 6px;
-    box-shadow: 0 16px 60px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.03);
+    box-shadow: 0 8px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.03);
     touch-action: none;
     cursor: crosshair;
     display: block;
@@ -38,21 +43,60 @@ html, body { width: 100%; height: 100%; background: #0a0d0b; color: #ddd; font-f
 
 #splash { position: fixed; inset: 0; background: #1f2a23; display: flex; align-items: center; justify-content: center; z-index: 100; transition: opacity 0.6s ease; }
 #splash.fade-out { opacity: 0; pointer-events: none; }
-#logo-wrap { position: relative; width: 120px; height: 120px; cursor: pointer; transform-origin: center center; transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1); margin: 0; filter: drop-shadow(0 0 10px rgba(150,137,194,.4)); animation: glow 3s ease-in-out infinite; }
-#logo-wrap svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; stroke: url(#logoGradient); stroke-width: 1.6; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-@keyframes glow { 0%, 100% { filter: drop-shadow(0 0 6px rgba(64,131,87,.6)); } 50% { filter: drop-shadow(0 0 16px rgba(150,137,194,.8)); } }
 
-#sketch-left { position: absolute; left: 0; top: 0; bottom: 0; width: 68px; background: #1a221d; border-right: 1px solid #263029; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 14px 0; transform: translateX(-100%); transition: transform .32s cubic-bezier(.34,1.56,.64,1); z-index: 20; box-shadow: 4px 0 24px rgba(0,0,0,.5); }
+#logo-wrap {
+    position: relative;
+    width: 120px; height: 120px;
+    cursor: pointer;
+    transform-origin: center center;
+    transition: transform 0.15s ease-out;
+    margin: 0;
+    filter: drop-shadow(0 0 8px rgba(150,137,194,.35));
+}
+#logo-wrap svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; stroke: url(#logoGradient); stroke-width: 1.6; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+#sketch-left, #sketch-right {
+    transition: transform .28s cubic-bezier(.2,.8,.2,1),
+                opacity 0.25s ease-out;
+    will-change: transform, opacity;
+}
+#sketch-left {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 68px;
+    background: #1a221d; border-right: 1px solid #263029;
+    display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 14px 0;
+    transform: translateX(-100%);
+    z-index: 20;
+    box-shadow: 0 4px 24px rgba(0,0,0,.4);
+}
 #sketch-left.open { transform: translateX(0); }
-.sk-tool-btn { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; border-radius: 12px; background: rgba(0,0,0,.25); transition: background .18s, transform .15s cubic-bezier(.34,1.56,.64,1), box-shadow .2s; }
-.sk-tool-btn svg { width: 23px; height: 23px; fill: none; stroke: rgb(64,131,87); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: stroke .18s; }
+#sketch-left.dimmed {
+    opacity: 0;
+    transition: transform .28s cubic-bezier(.2,.8,.2,1),
+                opacity 0.25s ease-out;
+}
+
+#sketch-right {
+    position: absolute; right: 0; top: 0; bottom: 0; width: 76px;
+    background: #14181a; border-left: 1px solid #25282a;
+    display: flex; flex-direction: column; gap: 8px; padding: 14px 0;
+    transform: translateX(100%);
+    z-index: 20;
+    box-shadow: 0 4px 24px rgba(0,0,0,.4);
+}
+#sketch-right.open { transform: translateX(0); }
+#sketch-right.dimmed {
+    opacity: 0;
+    transition: transform .28s cubic-bezier(.2,.8,.2,1),
+                opacity 0.25s ease-out;
+}
+
+.sk-tool-btn { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; border-radius: 12px; background: rgba(0,0,0,.25); transition: background .18s ease-out, transform .15s ease-out, box-shadow .2s ease-out; }
+.sk-tool-btn svg { width: 23px; height: 23px; fill: none; stroke: rgb(64,131,87); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: stroke .18s ease-out; }
 .sk-tool-btn.active { background: rgb(150,137,194); box-shadow: 0 0 0 3px rgba(150,137,194,.25), 0 4px 16px rgba(150,137,194,.4); transform: scale(1.06); }
 .sk-tool-btn.active svg { stroke: #fff; }
-.sk-tool-btn:active { transform: scale(.9); }
+.sk-tool-btn:active { transform: scale(.94); }
 
-#sketch-right { position: absolute; right: 0; top: 0; bottom: 0; width: 76px; background: #14181a; border-left: 1px solid #25282a; display: flex; flex-direction: column; gap: 8px; padding: 14px 0; transform: translateX(100%); transition: transform .32s cubic-bezier(.34,1.56,.64,1); z-index: 20; box-shadow: -4px 0 24px rgba(0,0,0,.5); }
-#sketch-right.open { transform: translateX(0); }
-.sk-layer { width: 54px; height: 54px; margin: 0 auto; background: #1d2226; border: 2px solid #2c3236; border-radius: 10px; cursor: pointer; font-size: 11px; color: #6d7a72; display: flex; align-items: center; justify-content: center; position: relative; transition: border-color .2s, background .2s, transform .15s, opacity 0.3s ease; }
+.sk-layer { width: 54px; height: 54px; margin: 0 auto; background: #1d2226; border: 2px solid #2c3236; border-radius: 10px; cursor: pointer; font-size: 11px; color: #6d7a72; display: flex; align-items: center; justify-content: center; position: relative; transition: border-color .2s ease-out, background .2s ease-out, transform .15s ease-out, opacity .3s ease-out; }
 .sk-layer:active { transform: scale(.94); }
 .sk-layer.active { border-color: rgb(150,137,194); background: #262b30; color: #fff; box-shadow: 0 0 0 2px rgba(150,137,194,.2); }
 .sk-layer.hidden-layer { opacity: 0.25; background: transparent; border-style: dashed; }
@@ -60,21 +104,14 @@ html, body { width: 100%; height: 100%; background: #0a0d0b; color: #ddd; font-f
 .sk-layer.active .sk-eye { color: rgb(150,137,194); }
 .sk-right-divider { height: 1px; background: #25282a; margin: 4px 12px; }
 
-#sk-edge-left, #sk-edge-right { position: absolute; top: 50%; transform: translateY(-50%); width: 28px; height: 80px; border: none; color: #fff; font-size: 18px; cursor: pointer; z-index: 15; display: flex; align-items: center; justify-content: center; transition: transform .32s cubic-bezier(.34,1.56,.64,1), background .2s, box-shadow .2s; }
+#sk-edge-left, #sk-edge-right { position: absolute; top: 50%; transform: translateY(-50%); width: 28px; height: 80px; border: none; color: #fff; font-size: 18px; cursor: pointer; z-index: 15; display: flex; align-items: center; justify-content: center; transition: transform .28s cubic-bezier(.2,.8,.2,1), opacity .4s ease-out; }
 #sk-edge-left { left: 0; background: rgba(64,131,87,.85); border-top-right-radius: 10px; border-bottom-right-radius: 10px; box-shadow: 2px 0 12px rgba(0,0,0,.35); }
 #sk-edge-right { right: 0; background: rgba(60,58,72,.85); border-top-left-radius: 10px; border-bottom-left-radius: 10px; box-shadow: -2px 0 12px rgba(0,0,0,.35); }
-#sk-edge-left:active, #sk-edge-right:active { background: rgb(150,137,194); box-shadow: 0 0 16px rgba(150,137,194,.5); }
+#sk-edge-left.idle:not(.shift), #sk-edge-right.idle:not(.shift) { opacity: 0; }
 #sk-edge-left.shift { transform: translate(68px, -50%); }
 #sk-edge-right.shift { transform: translate(-76px, -50%); }
 
-#sk-save-panel { position: absolute; right: 76px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); background: #1a221d; border: 1px solid #263029; border-radius: 12px; padding: 8px; display: flex; flex-direction: column; gap: 6px; transform: translateX(10px); opacity: 0; pointer-events: none; transition: transform .25s cubic-bezier(.34,1.56,.64,1), opacity .2s; z-index: 25; box-shadow: -4px 4px 24px rgba(0,0,0,.5); }
-#sk-save-panel.open { transform: translateX(0); opacity: 1; pointer-events: auto; }
-#sk-save-panel .sk-save-opt { padding: 10px 20px; border-radius: 8px; background: rgba(0,0,0,.25); color: #d0e0d5; font-size: 13px; font-family: inherit; cursor: pointer; border: none; text-align: left; transition: background .15s; display: flex; align-items: center; gap: 10px; }
-#sk-save-panel .sk-save-opt:hover { background: rgba(0,0,0,.45); }
-#sk-save-panel .sk-save-opt:active { background: rgb(150,137,194); color: #fff; }
-#sk-save-panel .sk-save-opt svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
-
-#sk-brush-panel { position: absolute; left: 0; right: 0; bottom: 0; background: #1a221d; border-top: 1px solid #263029; padding: 14px 16px calc(16px + env(safe-area-inset-bottom,0px)); transform: translateY(100%); transition: transform .28s cubic-bezier(.34,1.56,.64,1); z-index: 22; box-shadow: 0 -4px 24px rgba(0,0,0,.5); }
+#sk-brush-panel { position: absolute; left: 0; right: 0; bottom: 0; background: #1a221d; border-top: 1px solid #263029; padding: 14px 16px calc(16px + env(safe-area-inset-bottom,0px)); transform: translateY(100%); transition: transform .26s cubic-bezier(.2,.8,.2,1); z-index: 22; box-shadow: 0 -4px 24px rgba(0,0,0,.4); }
 #sk-brush-panel.open { transform: translateY(0); }
 #sk-brush-panel h4 { color: #d0e0d5; font-size: 13px; margin-bottom: 10px; font-weight: normal; }
 #sk-brush-panel .sk-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
@@ -84,16 +121,15 @@ html, body { width: 100%; height: 100%; background: #0a0d0b; color: #ddd; font-f
 
 .sk-toggle-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; width: 100%; }
 .sk-toggle-row span { color: #9fb0a5; font-size: 12px; }
-.sk-pulse-btn { width: 32px !important; height: 32px !important; border-radius: 50%; border: 2px solid #444; background: #222; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; padding: 0; }
-.sk-pulse-btn svg { width: 14px !important; height: 14px !important; stroke: #666; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.3s; }
+.sk-pulse-btn { width: 32px !important; height: 32px !important; border-radius: 50%; border: 2px solid #444; background: #222; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s ease-out, border-color 0.2s ease-out, box-shadow 0.2s ease-out; padding: 0; }
+.sk-pulse-btn svg { width: 14px !important; height: 14px !important; stroke: #666; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.2s ease-out; }
 .sk-pulse-btn .sk-check { display: none; stroke: #fff; }
-.sk-pulse-btn.on { background: rgb(150,137,194); border-color: rgb(150,137,194); animation: pulseGlow 1.5s infinite; }
+.sk-pulse-btn.on { background: rgb(150,137,194); border-color: rgb(150,137,194); animation: softPulse 2.4s ease-in-out infinite; }
 .sk-pulse-btn.on svg { stroke: #fff; }
 .sk-pulse-btn.on .sk-cross { display: none; }
 .sk-pulse-btn.on .sk-check { display: block; }
-@keyframes pulseGlow { 0% { box-shadow: 0 0 0 0 rgba(150,137,194, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(150,137,194, 0); } 100% { box-shadow: 0 0 0 0 rgba(150,137,194, 0); } }
 
-#sk-color-panel { position: absolute; left: 0; bottom: 0; width: 260px; max-width: 82vw; background: #1a221d; border-top-right-radius: 16px; padding: 14px 14px calc(60px + env(safe-area-inset-bottom,0px)) 14px; transform: translate(-110%, 110%); transition: transform .32s cubic-bezier(.34,1.56,.64,1); z-index: 24; box-shadow: 4px 4px 24px rgba(0,0,0,.5); border: 1px solid #263029; border-left: none; border-bottom: none; }
+#sk-color-panel { position: absolute; left: 0; bottom: 0; width: 260px; max-width: 82vw; background: #1a221d; border-top-right-radius: 16px; padding: 14px 14px calc(60px + env(safe-area-inset-bottom,0px)) 14px; transform: translate(-110%, 110%); transition: transform .28s cubic-bezier(.2,.8,.2,1); z-index: 24; box-shadow: 0 4px 24px rgba(0,0,0,.4); border: 1px solid #263029; border-left: none; border-bottom: none; }
 #sk-color-panel.open { transform: translate(0, 0); }
 #sk-color-panel h4 { color: #d0e0d5; font-size: 12px; margin-bottom: 10px; font-weight: normal; }
 .sk-color-preview { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
@@ -109,20 +145,82 @@ html, body { width: 100%; height: 100%; background: #0a0d0b; color: #ddd; font-f
 #sk-bri-slider { background: linear-gradient(to right, #000, #f00); }
 .sk-color-label { color: #9fb0a5; font-size: 11px; margin-top: 10px; margin-bottom: 6px; }
 .sk-preset-row, .sk-history-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
-.sk-preset-dot, .sk-history-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: transform .15s, border-color .15s; flex-shrink: 0; }
+.sk-preset-dot, .sk-history-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: transform .15s ease-out, border-color .15s ease-out; flex-shrink: 0; }
 .sk-preset-dot:hover, .sk-history-dot:hover { transform: scale(1.1); }
 .sk-preset-dot.active, .sk-history-dot.active { border-color: rgb(150,137,194); }
 .sk-history-empty { color: #6a7a70; font-size: 11px; font-style: italic; }
 
-.sk-color-apply-btn { position: absolute; bottom: 15px; right: 15px; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; background: rgb(150,137,194); color: #fff; border: none; border-radius: 50%; cursor: pointer; transition: transform 0.15s, background 0.15s; box-shadow: 0 4px 12px rgba(150,137,194,0.4); }
-.sk-color-apply-btn:active { transform: scale(0.9); background: rgb(64,131,87); }
+.sk-color-apply-btn { position: absolute; bottom: 15px; right: 15px; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; background: rgb(150,137,194); color: #fff; border: none; border-radius: 50%; cursor: pointer; transition: transform 0.15s ease-out, background 0.15s ease-out; box-shadow: 0 4px 12px rgba(150,137,194,0.4); }
+.sk-color-apply-btn:active { transform: scale(0.94); background: rgb(64,131,87); }
 .sk-color-apply-btn svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 
-#sk-overlay { position: absolute; inset: 0; background: rgba(0,0,0,.45); z-index: 18; opacity: 0; pointer-events: none; transition: opacity .25s; backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); }
+#sk-overlay { position: absolute; inset: 0; background: rgba(0,0,0,.55); z-index: 18; opacity: 0; pointer-events: none; transition: opacity .25s ease-out; }
 #sk-overlay.show { opacity: 1; pointer-events: auto; }
-#sk-zoom-label { position: absolute; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: rgba(0,0,0,.55); color: #e6e6e6; font-size: 12px; padding: 5px 14px; border-radius: 20px; z-index: 15; pointer-events: none; transition: opacity .5s; letter-spacing: 0.5px; }
+#sk-zoom-label { position: absolute; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: rgba(0,0,0,.55); color: #e6e6e6; font-size: 12px; padding: 5px 14px; border-radius: 20px; z-index: 15; pointer-events: none; transition: opacity .5s ease-out; letter-spacing: 0.5px; }
 #sk-zoom-label.hide { opacity: 0; }
 .error { color: #ff3333; font-size: 18px; padding: 20px; text-align: center; }
+
+.save-slot {
+    width: 48px;
+    height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    overflow: hidden;
+    transition: height .25s cubic-bezier(.2,.8,.2,1);
+    margin: 0 auto;
+}
+.save-slot.open {
+    height: 104px;
+    margin-top: 8px;
+    overflow: visible;
+}
+.save-btn {
+    width: 48px; height: 48px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,.25);
+    border-radius: 12px;
+    color: rgb(64,131,87);
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.4);
+    transition: opacity .2s ease-out, transform .4s cubic-bezier(.34,1.56,.64,1), background .18s ease-out;
+}
+.save-btn:active { transform: scale(0.9); }
+.save-btn svg {
+    width: 23px; height: 23px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    overflow: visible;
+}
+.save-btn svg text {
+    fill: currentColor;
+    stroke: none;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 0.6px;
+}
+.save-slot.open .save-btn {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1);
+}
+.save-trigger.open {
+    background: rgb(150,137,194);
+    box-shadow: 0 0 0 3px rgba(150,137,194,.25), 0 4px 16px rgba(150,137,194,.4);
+}
+.save-trigger.open svg { stroke: #fff; }
+.save-trigger { transition: background .18s ease-out, box-shadow .2s ease-out; }
+.save-trigger svg { transition: stroke .18s ease-out; }
 
     </style>
 </head>
@@ -133,7 +231,10 @@ html, body { width: 100%; height: 100%; background: #0a0d0b; color: #ddd; font-f
     <script>
 var SKETCH_CONFIG = {
     beatMs: 1200,
-    amplitude: 1.35,
+    amplitude: 1.25,
+    amplitudeBySize: { 1: 0.7, 2: 1.05, 3: 1.20 },
+    edgeIdleMs: 2500,
+    saveIdleMs: 3500,
     frameCount: 3,
 
     sizeMin: 1,
@@ -389,7 +490,8 @@ var Sketch = {
     running: false,
     root: null, canvas: null, ctx: null, leftBar: null, rightBar: null,
     edgeLeft: null, edgeRight: null, overlay: null, brushPanel: null, colorPanel: null,
-    savePanel: null, zoomLabel: null, splashScreen: null,
+    savePanel: null, saveSlot: null, saveTrigger: null, saveTimer: null,
+    zoomLabel: null, splashScreen: null,
 
     layers: [ { id: 3, visible: true, strokes: [] }, { id: 2, visible: true, strokes: [] }, { id: 1, visible: true, strokes: [] } ],
     activeLayerIndex: 2,
@@ -406,9 +508,9 @@ var Sketch = {
     targetScale: 1, targetRotation: 0, targetTx: 0, targetTy: 0,
     scale: 1, rotation: 0, tx: 0, ty: 0,
 
-    phaseIdx: 0, beatTimer: null, animRAF: null,
+    phaseIdx: 0, beatTimer: null, animRAF: null, edgeTimer: null,
     activePointers: {}, twoFingerStart: null,
-    uiSelector: '#sketch-left, #sketch-right, #sk-brush-panel, #sk-color-panel, #sk-save-panel, #sk-edge-left, #sk-edge-right, #splash',
+    uiSelector: '#sketch-left, #sketch-right, #sk-brush-panel, #sk-color-panel, #sk-edge-left, #sk-edge-right, #splash',
 
     init: function() {
         this._buildDom();
@@ -452,7 +554,7 @@ var Sketch = {
 
         this.splashScreen = document.createElement('div');
         this.splashScreen.id = 'splash';
-        this.splashScreen.innerHTML = '<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="rgb(64,131,87)"><animate attributeName="stop-color" values="rgb(64,131,87);rgb(150,137,194);rgb(64,131,87)" dur="3s" repeatCount="indefinite"/></stop><stop offset="100%" stop-color="rgb(150,137,194)"><animate attributeName="stop-color" values="rgb(150,137,194);rgb(64,131,87);rgb(150,137,194)" dur="3s" repeatCount="indefinite"/></stop></linearGradient></defs></svg><div id="logo-wrap"><div class="variant" id="v1"><svg class="logo-frame active" viewBox="0 0 24 24"><path d="M4 9 L4 4 L9 7.5"/><path d="M20 9 L20 4 L15 7.5"/><circle cx="12" cy="14" r="7"/><path d="M7.5 13 l3 1"/><path d="M16.5 13 l-3 1"/><path d="M2 13 h3 M2 15 h3 M22 13 h-3 M22 15 h-3"/></svg></div></div>';
+        this.splashScreen.innerHTML = '<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="rgb(64,131,87)"><animate attributeName="stop-color" values="rgb(64,131,87);rgb(150,137,194);rgb(64,131,87)" dur="4s" repeatCount="indefinite"/></stop><stop offset="100%" stop-color="rgb(150,137,194)"><animate attributeName="stop-color" values="rgb(150,137,194);rgb(64,131,87);rgb(150,137,194)" dur="4s" repeatCount="indefinite"/></stop></linearGradient></defs></svg><div id="logo-wrap"><div class="variant" id="v1"><svg class="logo-frame active" viewBox="0 0 24 24"><path d="M4 9 L4 4 L9 7.5"/><path d="M20 9 L20 4 L15 7.5"/><circle cx="12" cy="14" r="7"/><path d="M7.5 13 l3 1"/><path d="M16.5 13 l-3 1"/><path d="M2 13 h3 M2 15 h3 M22 13 h-3 M22 15 h-3"/></svg></div></div>';
         document.body.appendChild(this.splashScreen);
 
         var logoWrap = this.splashScreen.querySelector('#logo-wrap');
@@ -463,6 +565,7 @@ var Sketch = {
             setTimeout(function() {
                 self.splashScreen.classList.add('fade-out');
                 self.root.style.opacity = '1';
+                self._wakeEdges();
                 setTimeout(function() { self.splashScreen.style.display = 'none'; }, 800);
             }, 600);
         });
@@ -483,14 +586,14 @@ var Sketch = {
         var eR = document.createElement('button'); eR.id = 'sk-edge-right'; eR.textContent = '‹'; eR.addEventListener('click', function() { self._toggleRight(); }); root.appendChild(eR); this.edgeRight = eR;
         var zl = document.createElement('div'); zl.id = 'sk-zoom-label'; zl.textContent = '100%'; root.appendChild(zl); this.zoomLabel = zl;
 
-        this._buildBrushPanel(); this._buildColorPanel(); this._buildSavePanel();
+        this._buildBrushPanel(); this._buildColorPanel();
     },
 
     _buildLeftBar: function() {
         var self = this;
         var left = document.createElement('div'); left.id = 'sketch-left'; this.root.appendChild(left); this.leftBar = left;
         var brushes = [
-            { id: 'pencil', svg: '<path d="M12 19.5l-3.5.5.5-3.5L16.5 8l3 3-7.5 8.5z"/><path d="M14.5 10l3 3"/><path d="M3 21l4-4"/>' },
+            { id: 'pencil', svg: '<path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/><path d="M20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>' },
             { id: 'marker', svg: '<path d="M5 21h14"/><path d="M8 17V9a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v8"/><path d="M10 7V3h4v4"/>' },
             { id: 'brush', svg: '<path d="M3 21c2-1 3-2 4-4l3-3"/><path d="M14 4c2-2 5-2 6 0 1 2-1 5-3 7l-3-3c2-2 0-2-2 0l-3-3c2-2 4-3 5-3z"/><path d="M10 10l4 4"/>' }
         ];
@@ -506,7 +609,7 @@ var Sketch = {
             })(brushes[i], i);
         }
         var colorBtn = document.createElement('button'); colorBtn.className = 'sk-tool-btn';
-        colorBtn.innerHTML = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5" fill="currentColor"/></svg>';
+        colorBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 4h14v16l-7-4-7 4z"/><circle cx="12" cy="10" r="2" fill="currentColor"/></svg>';
         colorBtn.addEventListener('click', function() { self._toggleColorPanel(); }); left.appendChild(colorBtn);
     },
 
@@ -529,9 +632,26 @@ var Sketch = {
         clearBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14"/></svg>';
         clearBtn.addEventListener('click', function() { self.layers[self.activeLayerIndex].strokes = []; self.current = null; self.phaseIdx = 0; self._redraw(); });
         right.appendChild(clearBtn);
-        var saveBtn = document.createElement('button'); saveBtn.className = 'sk-tool-btn'; saveBtn.style.margin = '0 auto';
-        saveBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>';
-        saveBtn.addEventListener('click', function() { self._toggleSavePanel(); }); right.appendChild(saveBtn);
+
+        var trigger = document.createElement('button'); trigger.className = 'sk-tool-btn save-trigger'; trigger.style.margin = '0 auto';
+        trigger.innerHTML = '<svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>';
+        trigger.addEventListener('click', function() { self._toggleSavePanel(); });
+        right.appendChild(trigger);
+        this.saveTrigger = trigger;
+
+        var slot = document.createElement('div'); slot.className = 'save-slot';
+        var pngBtn = document.createElement('button'); pngBtn.className = 'save-btn';
+        pngBtn.innerHTML = '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+        pngBtn.addEventListener('click', function() { self._exportPng(); self._closeSavePanel(); });
+        slot.appendChild(pngBtn);
+
+        var gifBtn = document.createElement('button'); gifBtn.className = 'save-btn';
+        gifBtn.innerHTML = '<svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="1"/><text x="12.25" y="15" text-anchor="middle">GIF</text></svg>';
+        gifBtn.addEventListener('click', function() { self._exportGif(); self._closeSavePanel(); });
+        slot.appendChild(gifBtn);
+
+        right.appendChild(slot);
+        this.saveSlot = slot;
     },
 
     _selectLayer: function(idx) {
@@ -548,17 +668,6 @@ var Sketch = {
         var layerNum = 3 - idx, dom = this.rightBar.querySelector('[data-layer="' + layerNum + '"]');
         if (dom) { if (this.layers[idx].visible) dom.classList.remove('hidden-layer'); else dom.classList.add('hidden-layer'); }
         this._redraw();
-    },
-
-    _buildSavePanel: function() {
-        var self = this;
-        var panel = document.createElement('div'); panel.id = 'sk-save-panel'; this.root.appendChild(panel); this.savePanel = panel;
-        var pngOpt = document.createElement('button'); pngOpt.className = 'sk-save-opt';
-        pngOpt.innerHTML = '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> png';
-        pngOpt.addEventListener('click', function() { panel.classList.remove('open'); self._exportPng(); }); panel.appendChild(pngOpt);
-        var gifOpt = document.createElement('button'); gifOpt.className = 'sk-save-opt';
-        gifOpt.innerHTML = '<svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M7 15v-6h3a2 2 0 0 1 0 4H7"/><path d="M13 15h2a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-2z"/></svg> gif';
-        gifOpt.addEventListener('click', function() { panel.classList.remove('open'); self._exportGif(); }); panel.appendChild(gifOpt);
     },
 
     _buildBrushPanel: function() {
@@ -711,22 +820,41 @@ var Sketch = {
 
     _toggleLeft: function() {
         var willOpen = !this.leftBar.classList.contains('open');
+        if (willOpen) this.leftBar.classList.remove('dimmed');
         this.leftBar.classList.toggle('open', willOpen);
         this.edgeLeft.classList.toggle('shift', willOpen);
         this.edgeLeft.textContent = willOpen ? '‹' : '›';
+        if (!willOpen) this.leftBar.classList.add('dimmed');
         this._updateOverlay();
         if (!willOpen) { this._closeBrushPanel(); this._closeColorPanel(); }
+        this._wakeEdges();
     },
     _toggleRight: function() {
         var willOpen = !this.rightBar.classList.contains('open');
+        if (willOpen) this.rightBar.classList.remove('dimmed');
         this.rightBar.classList.toggle('open', willOpen);
         this.edgeRight.classList.toggle('shift', willOpen);
         this.edgeRight.textContent = willOpen ? '›' : '‹';
+        if (!willOpen) this.rightBar.classList.add('dimmed');
         this._updateOverlay();
-        if (!willOpen) this._closeSavePanel();
+        if (!willOpen) { this._closeSavePanel(); this._closeBrushPanel(); this._closeColorPanel(); }
+        this._wakeEdges();
+    },
+    _wakeEdges: function() {
+        var self = this;
+        this.edgeLeft.classList.remove('idle');
+        this.edgeRight.classList.remove('idle');
+        if (this.edgeTimer !== null) clearTimeout(this.edgeTimer);
+        this.edgeTimer = setTimeout(function() { self._sleepEdges(); }, SKETCH_CONFIG.edgeIdleMs);
+    },
+    _sleepEdges: function() {
+        this.edgeTimer = null;
+        if (!this.leftBar.classList.contains('open')) this.edgeLeft.classList.add('idle');
+        if (!this.rightBar.classList.contains('open')) this.edgeRight.classList.add('idle');
     },
     _updateOverlay: function() {
-        this.overlay.classList.toggle('show', this.leftBar.classList.contains('open') || this.rightBar.classList.contains('open'));
+        var anyOpen = this.leftBar.classList.contains('open') || this.rightBar.classList.contains('open');
+        this.overlay.classList.toggle('show', anyOpen);
     },
     _closeAll: function() {
         if (this.leftBar.classList.contains('open')) this._toggleLeft();
@@ -744,8 +872,27 @@ var Sketch = {
         }
     },
     _closeColorPanel: function() { if (this.colorPanel) this.colorPanel.classList.remove('open'); },
-    _toggleSavePanel: function() { if (this.savePanel) this.savePanel.classList.toggle('open'); },
-    _closeSavePanel: function() { if (this.savePanel) this.savePanel.classList.remove('open'); },
+
+    _toggleSavePanel: function() {
+        if (!this.saveSlot || !this.saveTrigger) return;
+        if (this.saveSlot.classList.contains('open')) {
+            this._closeSavePanel();
+            return;
+        }
+        this.saveSlot.classList.add('open');
+        this.saveTrigger.classList.add('open');
+        this._scheduleSaveClose();
+    },
+    _scheduleSaveClose: function() {
+        if (this.saveTimer !== null) { clearTimeout(this.saveTimer); this.saveTimer = null; }
+        var self = this;
+        this.saveTimer = setTimeout(function() { self.saveTimer = null; self._closeSavePanel(); }, SKETCH_CONFIG.saveIdleMs);
+    },
+    _closeSavePanel: function() {
+        if (this.saveTimer !== null) { clearTimeout(this.saveTimer); this.saveTimer = null; }
+        if (this.saveSlot) this.saveSlot.classList.remove('open');
+        if (this.saveTrigger) this.saveTrigger.classList.remove('open');
+    },
 
     _bindInput: function() {
         var self = this;
@@ -758,6 +905,7 @@ var Sketch = {
     },
 
     _onPointerDown: function(e) {
+        if (e.clientX < 48 || e.clientX > window.innerWidth - 48) this._wakeEdges();
         if (e.target.closest && e.target.closest(this.uiSelector)) return;
         this.activePointers[e.pointerId] = { x: e.clientX, y: e.clientY, t: Date.now(), moved: 0, startX: e.clientX, startY: e.clientY };
         var ids = Object.keys(this.activePointers);
@@ -832,7 +980,7 @@ var Sketch = {
         var pt = this._canvasPoint(e.clientX, e.clientY);
         this.drawing = true;
         var brush = this._getBrush();
-        this.current = { color: this.currentColor, size: this.currentSize, opacity: this.currentOpacity, brushId: brush.id, dynamicWidth: this.dynamicWidth, points: [this._makePoint(pt.x, pt.y)] };
+        this.current = { color: this.currentColor, size: this.currentSize, opacity: this.currentOpacity, brushId: brush.id, dynamicWidth: this.dynamicWidth, points: [this._makePoint(pt.x, pt.y, this.currentSize)] };
         this._redraw();
     },
 
@@ -850,7 +998,7 @@ var Sketch = {
 
         var dx = targetX - last.bx, dy = targetY - last.by;
         if (dx * dx + dy * dy < 4) return;
-        pts.push(this._makePoint(targetX, targetY));
+        pts.push(this._makePoint(targetX, targetY, this.current.size));
 
         var brush = this._getBrush(), color = this._resolveColor(this.current.color, this.current.opacity);
         this.ctx.strokeStyle = color; this.ctx.lineWidth = this.current.size * brush.widthMul; this.ctx.lineCap = brush.lineCap;
@@ -865,10 +1013,16 @@ var Sketch = {
         this.current = null; this._redraw();
     },
 
-    _makePoint: function(x, y) {
+    _ampFor: function(size) {
+        var m = SKETCH_CONFIG.amplitudeBySize[size];
+        return m !== undefined ? m : SKETCH_CONFIG.amplitude;
+    },
+
+    _makePoint: function(x, y, size) {
+        var amp = this._ampFor(size);
         var offs = [];
         for (var f = 0; f < SKETCH_CONFIG.frameCount; f++) {
-            offs.push({ x: (Math.random() * 2 - 1) * SKETCH_CONFIG.amplitude, y: (Math.random() * 2 - 1) * SKETCH_CONFIG.amplitude });
+            offs.push({ x: (Math.random() * 2 - 1) * amp, y: (Math.random() * 2 - 1) * amp });
         }
         return { bx: x, by: y, offs: offs };
     },
